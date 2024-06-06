@@ -275,7 +275,7 @@ with models.DAG(
 
     #proceso tablas pequeñas
 
-    payscalegroup_load >> peremail_load >> pernationalid_load >> perperson_load >> perpersonal_load >> perpersonrelationship_load >> perpersonrelationship_correo >>   picklistlabel_load >> picklistvaluev2_load
+    payscalegroup_load >> peremail_load >> pernationalid_load >> perperson_load >> perpersonal_load >> perpersonrelationship_load >>   picklistlabel_load >> picklistvaluev2_load
 
     #proceso Position
 
