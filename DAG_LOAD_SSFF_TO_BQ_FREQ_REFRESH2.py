@@ -337,37 +337,9 @@ with models.DAG(
         provide_context=True
     )
 
-    #proceso PayScaleGroup
+    #proceso tablas pequeñas
 
-    payscalegroup_load >> payscalegroup_correo
-
-    #proceso PerEmail
-
-    peremail_load >> peremail_correo
-
-    #proceso PerEmail
-
-    pernationalid_load >> pernationalid_correo
-
-    #proceso PerPerson
-
-    perperson_load >> perperson_correo
-
-    #proceso PerPersonal
-
-    perpersonal_load >> perpersonal_correo
-
-    #proceso PerPersonRelationship
-
-    perpersonrelationship_load >> perpersonrelationship_correo
-
-    #proceso PicklistLabel
-
-    picklistlabel_load >> picklistlabel_correo
-
-    #proceso PickListValueV2
-
-    picklistvaluev2_load >> picklistvaluev2_correo
+    payscalegroup_load >> peremail_load >> pernationalid_load >> perperson_load >> perpersonal_load >> perpersonrelationship_load >> perpersonrelationship_correo >>   picklistlabel_load >> picklistvaluev2_load
 
     #proceso Position
 
@@ -375,5 +347,6 @@ with models.DAG(
 
     #proceso PositionMatrixRelationship
 
-    positionmatrixrelationship_load >> positionmatrixrelationship_correo
+    positionmatrixrelationship_load >> perpersonrelationship_correo
+
     
