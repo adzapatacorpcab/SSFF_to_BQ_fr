@@ -158,7 +158,7 @@ with models.DAG(
 
 
     """Tasks de DAG"""
-    # Carga y notificación PayScaleGroup
+    # Carga PayScaleGroup
     payscalegroup_load = PythonOperator(
         task_id='payscalegroup_load_to_bq',
         python_callable=df_to_bq,
@@ -166,16 +166,8 @@ with models.DAG(
         dag=dag,
         provide_context=True
     )
-    
-    payscalegroup_correo = PythonOperator(
-        task_id='payscalegroup_send_email',
-        python_callable=correo,
-        op_kwargs={'table_id_variable': 'payscalegroup'},
-        dag=dag,
-        provide_context=True
-    )
 
-    # Carga y notificación PerEmail
+    # Carga PerEmail
 
     peremail_load = PythonOperator(
         task_id='peremail_load_to_bq',
@@ -184,16 +176,8 @@ with models.DAG(
         dag=dag,
         provide_context=True
     )
-    
-    peremail_correo = PythonOperator(
-        task_id='peremail_send_email',
-        python_callable=correo,
-        op_kwargs={'table_id_variable': 'peremail'},
-        dag=dag,
-        provide_context=True
-    )
 
-    # Carga y notificación PerNationalId
+    # Carga PerNationalId
 
     pernationalid_load = PythonOperator(
         task_id='pernationalid_load_to_bq',
@@ -202,16 +186,8 @@ with models.DAG(
         dag=dag,
         provide_context=True
     )
-    
-    pernationalid_correo = PythonOperator(
-        task_id='pernationalid_send_email',
-        python_callable=correo,
-        op_kwargs={'table_id_variable': 'pernationalid'},
-        dag=dag,
-        provide_context=True
-    )
 
-    # Carga y notificación PerPerson
+    # Carga PerPerson
 
     perperson_load = PythonOperator(
         task_id='perperson_load_to_bq',
@@ -220,16 +196,8 @@ with models.DAG(
         dag=dag,
         provide_context=True
     )
-    
-    perperson_correo = PythonOperator(
-        task_id='perperson_send_email',
-        python_callable=correo,
-        op_kwargs={'table_id_variable': 'perperson'},
-        dag=dag,
-        provide_context=True
-    )
 
-    # Carga y notificación PerPersonal
+    # Carga PerPersonal
 
     perpersonal_load = PythonOperator(
         task_id='perpersonal_load_to_bq',
@@ -238,16 +206,8 @@ with models.DAG(
         dag=dag,
         provide_context=True
     )
-    
-    perpersonal_correo = PythonOperator(
-        task_id='perpersonal_send_email',
-        python_callable=correo,
-        op_kwargs={'table_id_variable': 'perpersonal'},
-        dag=dag,
-        provide_context=True
-    )
 
-    # Carga y notificación PerPersonRelationship
+    # Carga PerPersonRelationship
 
     perpersonrelationship_load = PythonOperator(
         task_id='perpersonrelationship_load_to_bq',
@@ -256,16 +216,8 @@ with models.DAG(
         dag=dag,
         provide_context=True
     )
-    
-    perpersonrelationship_correo = PythonOperator(
-        task_id='perpersonrelationship_send_email',
-        python_callable=correo,
-        op_kwargs={'table_id_variable': 'perpersonrelationship'},
-        dag=dag,
-        provide_context=True
-    )
 
-    # Carga y notificación PicklistLabel
+    # Carga PicklistLabel
 
     picklistlabel_load = PythonOperator(
         task_id='picklistlabel_load_to_bq',
@@ -274,29 +226,13 @@ with models.DAG(
         dag=dag,
         provide_context=True
     )
-    
-    picklistlabel_correo = PythonOperator(
-        task_id='picklistlabel_send_email',
-        python_callable=correo,
-        op_kwargs={'table_id_variable': 'picklistlabel'},
-        dag=dag,
-        provide_context=True
-    )
 
-    # Carga y notificación PickListValueV2
+    # Carga PickListValueV2
 
     picklistvaluev2_load = PythonOperator(
         task_id='picklistvaluev2_load_to_bq',
         python_callable=df_to_bq,
         op_kwargs={'endpoint_variable': 'PickListValueV2', 'table_id_variable': 'picklistvaluev2'},
-        dag=dag,
-        provide_context=True
-    )
-    
-    picklistvaluev2_correo = PythonOperator(
-        task_id='picklistvaluev2_send_email',
-        python_callable=correo,
-        op_kwargs={'table_id_variable': 'picklistvaluev2'},
         dag=dag,
         provide_context=True
     )
@@ -347,6 +283,6 @@ with models.DAG(
 
     #proceso PositionMatrixRelationship
 
-    positionmatrixrelationship_load >> perpersonrelationship_correo
+    positionmatrixrelationship_load >> positionmatrixrelationship_correo
 
     
