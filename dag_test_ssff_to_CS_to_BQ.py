@@ -190,7 +190,13 @@ with models.DAG(
     )
 
     # Position a BQ
-    position_load_CSBQ
+    position_load_BQ = PythonOperator(
+        task_id='position_to_BQ',
+        python_callable=CS_to_BQ,
+        op_kwargs={'table_id_variable': 'position'},
+        dag=dag,
+        provide_context=True
+    )
 
     # Correo Position
     position_correo = PythonOperator(
@@ -230,7 +236,7 @@ with models.DAG(
 
     # Proceso Position
 
-    position_load_CS >> positionmatrixrelationship_load_BQ >> position_correo
+    position_load_CS >> position_load_BQ >> position_correo
 
     # procesp PositionMatrixRelationship
 
