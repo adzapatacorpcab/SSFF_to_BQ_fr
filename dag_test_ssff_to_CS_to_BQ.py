@@ -48,6 +48,24 @@ DESTINATARIOS = ["adzapata@corpcab.com.mx"] # CAMBIAR A PRD TRAS PRUEBAS: "ingen
 endpoint_variable = "" #Tabla fuente en SSFF: valores distintos en cada flujo de tasks, argumentos definidos en las task como op_kwargs
 table_id_variable = "" #Tabla destino en BQ: valores distintos en cada flujo de tasks, argumentos definidos en las task como op_kwargs
 
+# Configuración DAG
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'email': ['bigdata@pisa.com.mx'],  # Agrega los correos electrónicos aquí
+    'email_on_failure': True,
+    'email_on_retry': False,
+    'retries': 0,
+    'email_subject_template': 'Error en la ejecución de {{ dag.dag_id }} en {{ ds }}',
+    'email_html_content': """
+    <h3>Error en la ejecución del DAG {{ dag.dag_id }}</h3>
+    <p>Fecha: {{ ds }}</p>
+    <p>Tarea: {{ task.task_id }}</p>
+    <p>Log de errores:</p>
+    <pre>{{ ti.log }}</pre>
+    """
+}
+
 #Instanciación del DAG
   
 with models.DAG(
