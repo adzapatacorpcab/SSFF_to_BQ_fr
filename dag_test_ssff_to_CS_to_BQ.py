@@ -19,8 +19,8 @@ from google.cloud import storage
 from google.cloud import bigquery
 
 #CONSTANTES DAG
-DAG_ID = "DAG_LOAD_SSFF_TO_BQ_FREQ_REFRESH2" 
-DAG_DESCRIPTION = "Carga las tablas PayScaleGroup, PerEmail, PerNationalId, PerPerson, PerPersonal, PerPersonRelarionship, PicklistLabel, PickListValueV2, Position, PositionMatrixRelationship de Success Factors a BQ"
+DAG_ID = "test_ssff_to_CS_to_BQ" 
+DAG_DESCRIPTION = "Un test para pasar tablas de SSFF a Cloud Storage y luego a BigQuery"
 ACTUALIZACION ="30 8,13,17 * * 1-5" # en formato cron Lunes a Viernes 8:30 am, 1:30 pm, 5:30pm
 TIMEZONE = pytz.timezone('America/Mexico_City')
 
