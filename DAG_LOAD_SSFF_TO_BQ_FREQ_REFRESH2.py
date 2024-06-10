@@ -132,7 +132,7 @@ with models.DAG(
         destination_table = f"{PROJECT_ID}.{DATASET_ID}.{table_id_variable}"
         pandas_gbq.to_gbq(df, destination_table=destination_table, project_id=PROJECT_ID, if_exists='replace')
 
-    def correo(table_id_variable):
+    def correo():
         # Configuración del servidor de correo
         smtp_server = "smtp.office365.com"
         smtp_port = 587
@@ -143,10 +143,28 @@ with models.DAG(
         mensaje = MIMEMultipart()
         mensaje["From"] = smtp_username
         mensaje["To"] = ", ".join(DESTINATARIOS)
-        mensaje["Subject"] = "Carga de tabla "+table_id_variable+" a BigQuery exitosa"
+        mensaje["Subject"] = "Carga de tablas a BigQuery exitosa"
+
+        #Nombre de las tablas
+        tablas = [
+            "payscalegroup",
+            "peremail",
+            "pernationalid",
+            "perperson",
+            "perpersonal",
+            "perpersonrelationship",
+            "picklistlabel",
+            "picklistvaluev2",
+            "position",
+            "positionmatrixrelationship"
+        ]
 
         # Cuerpo del mensaje
-        cuerpo_mensaje = "\n\n"+"Carga de tabla "+table_id_variable+" a BigQuery finalizada en dataset "+DATASET_ID+" en proyecto "+PROJECT_ID+"\n\n\n"
+        cuerpo_mensaje = (
+            "La carga de las siguientes tablas a BigQuery ha finalizado exitosamente:\n\n" +
+            "\n".join(f"- {tabla}" for tabla in tablas) +
+            f"\n\nDataset: {DATASET_ID}\nProyecto: {PROJECT_ID}\n\n"
+        )
         mensaje.attach(MIMEText(cuerpo_mensaje, "plain"))
 
 
@@ -158,7 +176,6 @@ with models.DAG(
 
 
     """Tasks de DAG"""
-    # Carga PayScaleGroup
     payscalegroup_load = PythonOperator(
         task_id='payscalegroup_load_to_bq',
         python_callable=df_to_bq,
@@ -166,8 +183,6 @@ with models.DAG(
         dag=dag,
         provide_context=True
     )
-
-    # Carga PerEmail
 
     peremail_load = PythonOperator(
         task_id='peremail_load_to_bq',
@@ -177,7 +192,6 @@ with models.DAG(
         provide_context=True
     )
 
-    # Carga PerNationalId
 
     pernationalid_load = PythonOperator(
         task_id='pernationalid_load_to_bq',
@@ -187,7 +201,6 @@ with models.DAG(
         provide_context=True
     )
 
-    # Carga PerPerson
 
     perperson_load = PythonOperator(
         task_id='perperson_load_to_bq',
@@ -197,8 +210,6 @@ with models.DAG(
         provide_context=True
     )
 
-    # Carga PerPersonal
-
     perpersonal_load = PythonOperator(
         task_id='perpersonal_load_to_bq',
         python_callable=df_to_bq,
@@ -207,7 +218,6 @@ with models.DAG(
         provide_context=True
     )
 
-    # Carga PerPersonRelationship
 
     perpersonrelationship_load = PythonOperator(
         task_id='perpersonrelationship_load_to_bq',
@@ -217,8 +227,6 @@ with models.DAG(
         provide_context=True
     )
 
-    # Carga PicklistLabel
-
     picklistlabel_load = PythonOperator(
         task_id='picklistlabel_load_to_bq',
         python_callable=df_to_bq,
@@ -226,8 +234,6 @@ with models.DAG(
         dag=dag,
         provide_context=True
     )
-
-    # Carga PickListValueV2
 
     picklistvaluev2_load = PythonOperator(
         task_id='picklistvaluev2_load_to_bq',
@@ -237,8 +243,6 @@ with models.DAG(
         provide_context=True
     )
 
-    # Carga y notificación Position
-
     position_load = PythonOperator(
         task_id='position_load_to_bq',
         python_callable=df_to_bq,
@@ -246,16 +250,6 @@ with models.DAG(
         dag=dag,
         provide_context=True
     )
-    
-    position_correo = PythonOperator(
-        task_id='position_send_email',
-        python_callable=correo,
-        op_kwargs={'table_id_variable': 'position'},
-        dag=dag,
-        provide_context=True
-    )
-
-    # Carga y notificación PositionMatrixRelationship
 
     positionmatrixrelationship_load = PythonOperator(
         task_id='positionmatrixrelationship_load_to_bq',
@@ -265,24 +259,14 @@ with models.DAG(
         provide_context=True
     )
     
-    positionmatrixrelationship_correo = PythonOperator(
-        task_id='positionmatrixrelationship_send_email',
+    send_email = PythonOperator(
+        task_id='send_email',
         python_callable=correo,
-        op_kwargs={'table_id_variable': 'positionmatrixrelationship'},
         dag=dag,
         provide_context=True
     )
 
-    #proceso tablas pequeñas
 
-    payscalegroup_load >> peremail_load >> pernationalid_load >> perperson_load >> perpersonal_load >> perpersonrelationship_load >>   picklistlabel_load >> picklistvaluev2_load
-
-    #proceso Position
-
-    position_load >> position_correo
-
-    #proceso PositionMatrixRelationship
-
-    positionmatrixrelationship_load >> positionmatrixrelationship_correo
+    [payscalegroup_load, peremail_load, pernationalid_load, perperson_load, perpersonal_load, perpersonrelationship_load, picklistlabel_load , picklistvaluev2_load, position_load, positionmatrixrelationship_load] >> send_email
 
     
