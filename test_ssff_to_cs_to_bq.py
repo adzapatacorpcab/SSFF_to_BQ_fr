@@ -2,7 +2,6 @@ import requests
 import json
 import logging
 import os
-import pandas as pd
 import xml.etree.ElementTree as ET
 logging.captureWarnings(True)
 from datetime import datetime, timedelta
@@ -15,6 +14,7 @@ import pytz
 import xml.etree.ElementTree as ET
 import pyarrow as pa
 import pyarrow.parquet as pq
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 #CONSTANTES DE SSFF
 SSFF_USERNAME = "apiadmin@efmayasoci"
@@ -42,32 +42,58 @@ def get_api_data(odata_base_url, page_size, username, password, date_filter_cond
         new_column_name = column_name.split('}')[-1]
         return new_column_name
     
-    while current_page_number <= max_number_of_pages:
+    # Función que obtiene datos por página
+    def fetch_page(page_number):
+        url = f"{odata_base_url}{endpoint}?$top={page_size}&$skip={(page_number - 1) * page_size}&{date_filter_conditions}"
+        logging.info(f"Fetching data from URL: {url}")
 
-        url = f"{odata_base_url}{endpoint}?$top={page_size}&$skip={(current_page_number - 1) * page_size}&{date_filter_conditions}"
         response = requests.get(url, auth=(username, password))
+        response.raise_for_status()  # Levantar una excepción para respuestas con error
+
         data = response.text
-        # Creo siempre en estos casos va a estar en XML (asegurar)
+        return data
+
+    # Función para procesar datos de una página
+    def process_page(data):
         root = ET.fromstring(data)
         entries = root.findall('{http://www.w3.org/2005/Atom}entry')
-        if not entries:
-            break
+
         entry_data = []
         for entry in entries:
             entry_dict = {}
             for elem in entry.findall('{http://www.w3.org/2005/Atom}content/{http://schemas.microsoft.com/ado/2007/08/dataservices/metadata}properties/*'):
                 entry_dict[elem.tag.replace('{http://schemas.microsoft.com/ado/2007/08/dataservices/metadata}', '')] = elem.text
             entry_data.append(entry_dict)
-        
-        all_data.extend(entry_data)
-        
-        current_page_number += 1
 
-    table = pa.Table.from_pylist(all_data)
-    new_column_names = [transform_column_name(name) for name in table.schema.names]
-    table = table.rename_columns(new_column_names)
+        return entry_data
     
-    return table
+    # Usar ThreadPoolExecutor para realizar solicitudes paralelas, explcacion pendiente
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        future_to_page = {executor.submit(fetch_page, page): page for page in range(1, max_number_of_pages + 1)}
+        
+        for future in as_completed(future_to_page):
+            page = future_to_page[future]
+            try:
+                data = future.result()
+                page_data = process_page(data)
+                if not page_data:
+                    logging.info(f"No more entries found at page {page}.")
+                    break
+                all_data.extend(page_data)
+                logging.info(f"Page {page} processed, {len(page_data)} entries found.")
+            except Exception as e:
+                logging.error(f"Request failed for page {page}: {e}")
+                break
+    
+    if all_data:
+        table = pa.Table.from_pylist(all_data)
+        new_column_names = [transform_column_name(name) for name in table.schema.names]
+        table = table.rename_columns(new_column_names)
+        return table
+    else:
+        logging.warning("No data fetched from API.")
+        return None
 
 def table_to_CS(table, table_id):
     temp_path = f"/tmp/{table_id}.parquet"
@@ -94,9 +120,9 @@ def CS_to_BQ(table_id_name):
     load_job.result()
 
 
-dic_result = get_api_data(ODATA_BASE_URL, PAGE_SIZE, SSFF_USERNAME, SSFF_PASSWORD, DATE_FILTER_CONDITIONS, MAX_NUMBER_OF_PAGES, 'PayScaleGroup')
-table_to_CS(dic_result, 'payscalegroup')
-CS_to_BQ('payscalegroup')
+dic_result = get_api_data(ODATA_BASE_URL, PAGE_SIZE, SSFF_USERNAME, SSFF_PASSWORD, DATE_FILTER_CONDITIONS, MAX_NUMBER_OF_PAGES, 'PickListLabel')
+table_to_CS(dic_result, 'picklistlabel')
+CS_to_BQ('picklistlabel')
 
 
 
