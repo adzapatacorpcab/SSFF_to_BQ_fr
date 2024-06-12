@@ -46,10 +46,11 @@ table_id_variable = "" #Tabla destino en BQ: valores distintos en cada flujo de 
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': ['bigdata@pisa.com.mx'],  # Agrega los correos electrónicos aquí
+    'email': ['bigdata@pisa.com.mx'],  # Agrega emails aqui
     'email_on_failure': True,
     'email_on_retry': False,
-    'retries': 0,
+    'retries': 3,
+    'retry_delay': timedelta(minutes=5),
     'email_subject_template': 'Error en la ejecución de {{ dag.dag_id }} en {{ ds }}',
     'email_html_content': """
     <h3>Error en la ejecución del DAG {{ dag.dag_id }}</h3>
