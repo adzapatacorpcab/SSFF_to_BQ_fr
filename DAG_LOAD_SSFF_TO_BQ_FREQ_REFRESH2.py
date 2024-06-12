@@ -65,7 +65,7 @@ default_args = {
 with models.DAG(
         DAG_ID,
         schedule = ACTUALIZACION, 
-        start_date = datetime(2023, 1, 1),
+        start_date = datetime(2023, 1, 1, tzinfo=TIMEZONE),
         description = DAG_DESCRIPTION,
         catchup = False,
         default_args = default_args,
