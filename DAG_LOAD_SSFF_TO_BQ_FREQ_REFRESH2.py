@@ -255,6 +255,6 @@ with models.DAG(
     )
 
 
-    [payscalegroup_load, peremail_load, pernationalid_load, perperson_load, perpersonal_load, perpersonrelationship_load, picklistlabel_load , picklistvaluev2_load, position_load, positionmatrixrelationship_load] >> send_email
+    [payscalegroup_load, peremail_load, pernationalid_load, perperson_load, perpersonal_load, perpersonrelationship_load, picklistlabel_load , picklistvaluev2_load] >> [position_load, positionmatrixrelationship_load] >> send_email
 
     
