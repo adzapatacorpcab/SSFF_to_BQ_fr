@@ -30,7 +30,7 @@ MAX_NUMBER_OF_PAGES = 1000
 DATE_FILTER_CONDITIONS = "fromDate=1900-01-01"
 
 #CONSTANTES DE BIGQUERY
-PROJECT_ID = "psa-sga-dfn-prd" # CAMBIAR A PRD TRAS PRUEBAS: "psa-sga-dfn-pr"
+PROJECT_ID = "psa-sga-dfn-pr" # CAMBIAR A PRD TRAS PRUEBAS: "psa-sga-dfn-pr"
 DATASET_ID = "raw_ssff_mx"
 
 #CONSTANTES DE CORREO
