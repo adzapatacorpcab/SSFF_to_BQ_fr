@@ -30,13 +30,14 @@ MAX_NUMBER_OF_PAGES = 1000
 DATE_FILTER_CONDITIONS = "fromDate=1900-01-01"
 
 #CONSTANTES DE BIGQUERY
-PROJECT_ID = "psa-sga-dfn-qa" # CAMBIAR A PRD TRAS PRUEBAS: "psa-sga-dfn-pr"
+PROJECT_ID = "psa-sga-dfn-prd" # CAMBIAR A PRD TRAS PRUEBAS: "psa-sga-dfn-pr"
 DATASET_ID = "raw_ssff_mx"
 
 #CONSTANTES DE CORREO
 EMAIL_SENDER = Variable.get("sp_user")  #variable idéntica en PRD
 EMAIL_PASSWORD = Variable.get("sp_pass") #variable idéntica en PRD 
 DESTINATARIOS = ["adzapata@corpcab.com.mx"] # CAMBIAR A PRD TRAS PRUEBAS: "ingenieriadatos@pisa.com.mx"
+TABLAS = ["payscalegroup","peremail","pernationalid","perperson","perpersonal","perpersonrelationship","picklistlabel","picklistvaluev2","position","positionmatrixrelationship"]
 
 #VARIABLES DE PROCESO (SSFF Y BIGQUERY)
 endpoint_variable = "" #Tabla fuente en SSFF: valores distintos en cada flujo de tasks, argumentos definidos en las task como op_kwargs
@@ -49,8 +50,8 @@ default_args = {
     'email': ['bigdata@pisa.com.mx'],  # Agrega emails aqui
     'email_on_failure': True,
     'email_on_retry': False,
-    'retries': 3,
-    'retry_delay': timedelta(minutes=5),
+    'retries': 2,
+    'retry_delay': timedelta(minutes=2),
     'email_subject_template': 'Error en la ejecución de {{ dag.dag_id }} en {{ ds }}',
     'email_html_content': """
     <h3>Error en la ejecución del DAG {{ dag.dag_id }}</h3>
@@ -146,24 +147,10 @@ with models.DAG(
         mensaje["To"] = ", ".join(DESTINATARIOS)
         mensaje["Subject"] = "Carga de tablas a BigQuery exitosa"
 
-        #Nombre de las tablas
-        tablas = [
-            "payscalegroup",
-            "peremail",
-            "pernationalid",
-            "perperson",
-            "perpersonal",
-            "perpersonrelationship",
-            "picklistlabel",
-            "picklistvaluev2",
-            "position",
-            "positionmatrixrelationship"
-        ]
-
         # Cuerpo del mensaje
         cuerpo_mensaje = (
             "La carga de las siguientes tablas a BigQuery ha finalizado exitosamente:\n\n" +
-            "\n".join(f"- {tabla}" for tabla in tablas) +
+            "\n".join(f"- {tabla}" for tabla in TABLAS) +
             f"\n\nDataset: {DATASET_ID}\nProyecto: {PROJECT_ID}\n\n"
         )
         mensaje.attach(MIMEText(cuerpo_mensaje, "plain"))
