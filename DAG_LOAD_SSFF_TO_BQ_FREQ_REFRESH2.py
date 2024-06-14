@@ -36,7 +36,7 @@ DATASET_ID = "raw_ssff_mx"
 #CONSTANTES DE CORREO
 EMAIL_SENDER = Variable.get("sp_user")  #variable idéntica en PRD
 EMAIL_PASSWORD = Variable.get("sp_pass") #variable idéntica en PRD 
-DESTINATARIOS = ["adzapata@corpcab.com.mx"] # CAMBIAR A PRD TRAS PRUEBAS: "ingenieriadatos@pisa.com.mx"
+DESTINATARIOS = ["adzapata@corpcab.com.mx", "ingenieriadatos@pisa.com.mx"] # CAMBIAR A PRD TRAS PRUEBAS: "ingenieriadatos@pisa.com.mx"
 TABLAS = ["payscalegroup","peremail","pernationalid","perperson","perpersonal","perpersonrelationship","picklistlabel","picklistvaluev2","position","positionmatrixrelationship"]
 
 #VARIABLES DE PROCESO (SSFF Y BIGQUERY)
